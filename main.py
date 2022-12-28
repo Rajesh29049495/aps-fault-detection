@@ -2,6 +2,7 @@
 from sensor.exception import SensorException 
 from sensor.logger import logging
 import sys,os
+from sensor.__init__ import get_collection_as_dataframe
 
 
 if __name__=="__main__":
