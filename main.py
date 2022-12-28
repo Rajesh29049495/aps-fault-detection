@@ -1,8 +1,9 @@
-##code to understand the use of exception.py and logger.py
-from sensor.exception import SensorException 
+import pandas as pd
 from sensor.logger import logging
-import sys,os
-from sensor.__init__ import get_collection_as_dataframe
+from sensor.exception import SensorException
+from sensor.utils import get_collection_as_dataframe
+import os,sys
+
 
 
 if __name__=="__main__":
