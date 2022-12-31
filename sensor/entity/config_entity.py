@@ -37,7 +37,17 @@ class DataIngestionConfig:
             raise SensorException(e,sys) 
 
 
-class DataValidationConfig:...
+class DataValidationConfig:
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig): 
+        try:
+            self.data_validation_dir = os.path.join(training_pipeline_config.artifact_dir , "data_validation")  ##it will create a point/location where the data validation foler will be located
+            self.report_file_path= os.path.join(self.data_validation_dir,"report.yaml")                          ##in it we will store a report{can be .yaml, .csv or.json format}, which will contain all the report whether there is drift and not, whose location/path is being mentioned here.
+            self.missing_threshold:float = 0.2
+            self.base_file_path = os.path.join("aps_failure_training_set1.csv") 
+        except Exception  as e:
+            raise SensorException(e,sys)
+
+
 class DataTransformationConfig:...
 class ModelTrainingConfig:...
 class ModelEvaluationConfig:...
