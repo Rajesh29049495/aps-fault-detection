@@ -1,11 +1,12 @@
-##this contains the code of a function to get dataframe from mongodb, function to save data/report in '.yaml' file{the format}, function to convert datatype of all the columns to float except the 'class' column
+##this contains the code of a function to get dataframe from mongodb, function to save data/report in '.yaml' file{the format}, function to convert datatype of all the columns to float except the 'class' column, function to save object in  pickle file{serialisation process}, function to load object from a pickle file{deserilaisation process}, and functions to save and load numpy_array data respectively
 
 import pandas as pd
 from sensor.logger import logging
 from sensor.exception import SensorException
 from sensor.config import mongo_client  ##to call the client that we have created w.r.t. mongodb in the config file
 import os,sys
-import yaml 
+import yaml
+import dill  ##it is used to save your object/model in pickle format file, this library does the same function that pickle library does
 
 def get_collection_as_dataframe(database_name: str, collection_name: str)->pd.DataFrame:
     """
@@ -51,3 +52,51 @@ def convert_columns_float(df:pd.DataFrame,exclude_columns:list)->pd.DataFrame:
         return df
     except Exception as e:
         raise e
+    
+## function to save object in a pickle file
+def save_object(file_path: str, obj: object) -> None:  ##'file_path' is the location where we going to save the object, and 'obj' is the object to be saved
+    try:
+        logging.info("Entered the save_object method of utils")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)  #to make directory passed for 'file_path' variable, if not exist
+        with open(file_path, "wb") as file_obj:
+            dill.dump(obj, file_obj)
+        logging.info("Exited the save_object method of utils")
+    except Exception as e:
+        raise SensorException(e, sys) from e
+
+##function to load ypur object from a pickle file
+def load_object(file_path: str ) -> object:
+    try:
+        if not os.path.exists(file_path):
+            raise Exception(f"The file: {file_path} does not exists")
+        with open(file_path, "rb") as file_obj:
+            return dill.load(file_obj)
+    except Exception as e:
+        raise SensorException(e, sys) from e
+
+## functions to save and load numpy_array data respectively
+def save_numpy_array_data(file_path: str, array: np.array):
+    """
+    Save numpy array data to file
+    file_path: str location of file to save
+    array: np.array data to save
+    """
+    try:
+        dir_path = os.path.dirname(file_path)
+        os.makedirs(dir_path, exist_ok=True)
+        with open(file_path, "wb") as file_obj:
+            np.save(file_obj, array)
+    except Exception as e:
+        raise SensorException(e, sys) from e
+
+def load_numpy_array_data(file_path: str) -> np.array:
+    """
+    load numpy array data from file
+    file_path: str location of file to load
+    return: np.array data loaded
+    """
+    try:
+        with open(file_path, "rb") as file_obj:
+            return np.load(file_obj)
+    except Exception as e:
+        raise SensorException(e, sys) from e

@@ -3,9 +3,13 @@ from sensor.exception import SensorException
 from sensor.logger import logging
 from datetime import datetime
 
+##here we have mentioned these constant variables, we did it, as these are constant file names, i.e., these are not files whose name are contain timestamp, so these will always have same name,,,so if we  call them again again, we may face typo error, so to avoid it we have mentioned them here 
 FILE_NAME = "sensor.csv"
 TRAIN_FILE_NAME = "train.csv"
 TEST_FILE_NAME = "test.csv"
+TRANSFORMER_OBJECT_FILE_NAME = "transformer.pkl"
+TARGET_ENCODER_OBJECT_FILE_NAME = "target_encoder.pkl"
+MODEL_FILE_NAME = "model.pkl"
 
 
 class TrainingPipelineConfig:   ##this whole class will just create a path name where all the output will stored each time training pipeline is going to run
@@ -48,7 +52,17 @@ class DataValidationConfig:
             raise SensorException(e,sys)
 
 
-class DataTransformationConfig:...
+class DataTransformationConfig:
+
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.data_transformation_dir = os.path.join(training_pipeline_config.artifact_dir , "data_transformation")
+        self.transform_object_path = os.path.join(self.data_transformation_dir,"transformer",TRANSFORMER_OBJECT_FILE_NAME)
+        self.transformed_train_path =  os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))
+        self.transformed_test_path =os.path.join(self.data_transformation_dir,"transformed",TEST_FILE_NAME.replace("csv","npz"))
+        self.target_encoder_path = os.path.join(self.data_transformation_dir,"target_encoder",TARGET_ENCODER_OBJECT_FILE_NAME)
+
+
+
 class ModelTrainingConfig:...
 class ModelEvaluationConfig:...
 class ModelPusherConfig:...

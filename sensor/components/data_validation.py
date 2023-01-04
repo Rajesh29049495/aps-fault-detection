@@ -86,7 +86,7 @@ class DataValidation:
                 base_data,current_data = base_df[base_column],current_df[base_column]
                 #Null hypothesis is that both column data drawn from same distrubtion
                 
-                logging.info(f"Hypothesis {base_column}: {base_data.dtype}, {current_data.dtype} ")  ##this logging is important because it will log the datatype of the both data whose distribution is to be tested, so that we can know when any error occur because of the datatype mismatch, like happened initially then we changed the datatype of the all the features except the 'class' feature/column
+                logging.info(f"Hypothesis {base_column}: {base_data.dtype}, {current_data.dtype} ")  ##this logging is important because it will log the datatype of the both data whose distribution is to be tested, so that we can know when any error occur because of the datatype mismatch, like happened initially then we changed the datatype of the all the features except the 'class' feature/column to float so that no mismatch occur, as mostly while working on data, sometime the datatype of some of the values of a feature changes.
                 same_distribution =ks_2samp(base_data,current_data)
 
                 if same_distribution.pvalue>0.05:
@@ -128,7 +128,7 @@ class DataValidation:
             logging.info(f"Drop null values colums from test df")
             test_df = self.drop_missing_values_columns(df=test_df,report_key_name="missing_values_within_test_dataset")
             
-            ##after dropping missing value column, now we change the datatye of all the colums to float except the target column
+            ##after dropping missing value column, now we change the datatye of all the colums to float except the target column, did it to avoid datatype mismatch error while testing the distribution of the features
             exclude_columns = [TARGET_COLUMN]
             base_df = utils.convert_columns_float(df=base_df, exclude_columns=exclude_columns)
             train_df = utils.convert_columns_float(df=train_df, exclude_columns=exclude_columns)
@@ -153,8 +153,10 @@ class DataValidation:
             utils.write_yaml_file(file_path=self.data_validation_config.report_file_path,
                                   data=self.validation_error)
 
+
             data_validation_artifact = artifact_entity.DataValidationArtifact(report_file_path=self.data_validation_config.report_file_path)
             logging.info(f"Data validation artifact: {data_validation_artifact}")
             return data_validation_artifact
+            
         except Exception as e:
             raise SensorException(e, sys)

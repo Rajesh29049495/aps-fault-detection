@@ -11,6 +11,7 @@ class EnvironmentVariable():
     mongo_db_url: str = os.getenv("MONGO_DB_URL")          ##here reading the mongodb url from '.env file' by passing the key w.r.t it as parameter,,,here str is just to mention the type of the url{just for the convenience}
 
 
+
 env_var = EnvironmentVariable()                            ##object of EnvironmentVariable class
 mongo_client = pymongo.MongoClient(env_var.mongo_db_url)   ##now i don't have to create mongoclient again and again, simply will use it from here
 TARGET_COLUMN = "class"                                    ##this target column 'class' will be used later on so that thi scan be excluded while doing datatype conversion of the other columns
