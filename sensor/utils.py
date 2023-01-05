@@ -5,6 +5,7 @@ from sensor.logger import logging
 from sensor.exception import SensorException
 from sensor.config import mongo_client  ##to call the client that we have created w.r.t. mongodb in the config file
 import os,sys
+import numpy as np
 import yaml
 import dill  ##it is used to save your object/model in pickle format file, this library does the same function that pickle library does
 

@@ -57,12 +57,20 @@ class DataTransformationConfig:
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
         self.data_transformation_dir = os.path.join(training_pipeline_config.artifact_dir , "data_transformation")
         self.transform_object_path = os.path.join(self.data_transformation_dir,"transformer",TRANSFORMER_OBJECT_FILE_NAME)
-        self.transformed_train_path =  os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))
+        self.transformed_train_path =  os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))   ##as the file that will be saved will be a numpy file therefore it is better to change the extension from .csv to .npz
         self.transformed_test_path =os.path.join(self.data_transformation_dir,"transformed",TEST_FILE_NAME.replace("csv","npz"))
         self.target_encoder_path = os.path.join(self.data_transformation_dir,"target_encoder",TARGET_ENCODER_OBJECT_FILE_NAME)
 
 
 
-class ModelTrainingConfig:...
+class ModelTrainerConfig:
+
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.model_trainer_dir = os.path.join(training_pipeline_config.artifact_dir , "model_trainer")
+        self.model_path = os.path.join(self.model_trainer_dir,"model",MODEL_FILE_NAME)
+        self.expected_score = 0.7                      ##this is the accuracy expected from the model, this is based on suggestion from the subject matter expert, if accuracy of the test data using the model comes out to be less than this, them we will say that the model underfitting 
+        self.overfitting_threshold = 0.1               ##this the overfitting value that is workable if more than this then the the mode is overfitting 
+
+
 class ModelEvaluationConfig:...
 class ModelPusherConfig:...
