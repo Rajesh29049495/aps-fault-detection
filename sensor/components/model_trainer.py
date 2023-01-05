@@ -25,7 +25,8 @@ class ModelTrainer:
     # function to train the model
     def train_model(self, x, y):
         try:
-            xgb_clf = XGBClassifier()  ###training the model by using this classifier ,because during th eexperiment stage found this algorithm to b ethe best for the problem            xgb_clf.fit(x,y)
+            xgb_clf = XGBClassifier()  ###training the model by using this classifier ,because during th eexperiment stage found this algorithm to b ethe best for the problem
+            xgb_clf.fit(x,y)
             return xgb_clf
         except Exception as e:
             raise SensorException(e, sys)
@@ -37,9 +38,8 @@ class ModelTrainer:
             test_arr = utils.load_numpy_array_data(file_path=self.data_transformation_artifact.transformed_test_path)
 
             logging.info(f"Splitting input and target feature from both train and test arr.")
-            x_train, y_train = train_arr[:, :-1], train_arr[:,
-                                                  -1]  ##we concatenated it in previuos component, so to get x_train we will extract it in such a way that we need each row, and ech column except the last one, and for y_train{i.e., the target feature}, we will extract such that we need all the rows but only one column
-            x_test, y_test = test_arr[:, :-1], train_arr[:, -1]
+            x_train, y_train = train_arr[:,:-1], train_arr[:,-1]  ##we concatenated it in previuos component, so to get x_train we will extract it in such a way that we need each row, and ech column except the last one, and for y_train{i.e., the target feature}, we will extract such that we need all the rows but only one column
+            x_test, y_test = test_arr[:,:-1], train_arr[:,-1]
 
             logging.info(f"Train the model")
             model = self.train_model(x=x_train, y=y_train)

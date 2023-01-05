@@ -42,7 +42,7 @@ class DataTransformation:
 
 
     ##after creating the pipeline, now we can define the transformation function
-    def initiate_data_trasnformation(self) -> artifact_entity.DataTransformationArtifact:
+    def initiate_data_transformation(self) -> artifact_entity.DataTransformationArtifact:
         try:
             # reading training and testing data
             train_df = pd.read_csv(self.data_ingestion_artifact.train_file_path)
@@ -100,7 +100,7 @@ class DataTransformation:
 
             # saving the objects
             utils.save_object(file_path=self.data_transformation_config.transform_object_path,
-                          obj=transformation_pipleine)
+                          obj=transformation_pipeline)
 
             utils.save_object(file_path=self.data_transformation_config.target_encoder_path,
                           obj=label_encoder)

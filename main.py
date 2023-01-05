@@ -27,7 +27,7 @@ if __name__=="__main__":
         data_validation_artifact = data_validation.initiate_data_validation()
     
         #data_transformation
-        data_transformation_config = config_entity.DataTransformationConfig(training_pipeline_config = training_pipeline_config)
+        data_transformaton_config= config_entity.DataTransformationConfig(training_pipeline_config=training_pipeline_config)
         data_transformation = DataTransformation(data_transformation_config= data_transformaton_config,
                                                  data_ingestion_artifact= data_ingestion_artifact)
         data_transformation_artifact = data_transformation.initiate_data_transformation()
@@ -38,5 +38,5 @@ if __name__=="__main__":
         model_trainer_artifact = model_trainer.initiate_model_trainer()
 
     except Exception as e:
-        print(e)
+        raise SensorException(e,sys)
 
