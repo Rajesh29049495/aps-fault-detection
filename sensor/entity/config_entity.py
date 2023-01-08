@@ -16,7 +16,7 @@ class TrainingPipelineConfig:   ##this whole class will just create a path name 
 
     def __init__(self):
         try:
-            self.artifact_dir = os.path.join(os.getcwd(),"artifact",f"{datetime.now().strftime('%m%d%Y__%H%M%S')}")  ##it is going to create a location in the current directory with a format mentioned in this code only,,using this created location and format in which outputs will be stored each tim etraining pipeline going to run like we created the logs
+            self.artifact_dir = os.path.join(os.getcwd(),"artifact",f"{datetime.now().strftime('%m%d%Y__%H%M%S')}")  ##it is going to create a location in the current directory with a format mentioned in this code only,,using this created location and format in which outputs will be stored each time training pipeline going to run like we created the logs
         except Exception  as e:
             raise SensorException(e,sys) 
 
@@ -72,5 +72,8 @@ class ModelTrainerConfig:
         self.overfitting_threshold = 0.1               ##this the overfitting value that is workable if more than this then the the mode is overfitting 
 
 
-class ModelEvaluationConfig:...
+class ModelEvaluationConfig:
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):    ###normally is module ke saare classes me ab tak i was taking "training_pipeline_config" as input because it was needed while creating path locations, in this just used because the sir used it, although not needed, as no use of this in the code inside this class
+        self.change_threshold = 0.01  ##here we have provided threshold value of the change in accuracy, that if the new model accuracy is 1 percent higher than the model currently in use, then we accept this new model
+
 class ModelPusherConfig:...
