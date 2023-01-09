@@ -73,7 +73,16 @@ class ModelTrainerConfig:
 
 
 class ModelEvaluationConfig:
+
     def __init__(self, training_pipeline_config: TrainingPipelineConfig):    ###normally is module ke saare classes me ab tak i was taking "training_pipeline_config" as input because it was needed while creating path locations, in this just used because the sir used it, although not needed, as no use of this in the code inside this class
         self.change_threshold = 0.01  ##here we have provided threshold value of the change in accuracy, that if the new model accuracy is 1 percent higher than the model currently in use, then we accept this new model
 
-class ModelPusherConfig:...
+
+class ModelPusherConfig:
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+        self.model_pusher_dir = os.path.join(training_pipeline_config.artifact_dir , "model_pusher")                                          
+        self.pusher_model_dir = os.path.join(self.model_pusher_dir,"saved_models")
+        self.pusher_model_path = os.path.join(self.pusher_model_dir,MODEL_FILE_NAME)
+        self.pusher_transformer_path = os.path.join(self.pusher_model_dir,TRANSFORMER_OBJECT_FILE_NAME)
+        self.pusher_target_encoder_path = os.path.join(self.pusher_model_dir,TARGET_ENCODER_OBJECT_FILE_NAME)  ##uptil here provide path to save models/objects in a "model_pusher" folder's subfolder "saved_models" with each run of the sourcecode, other than this we will also save those in separate folder "saved_models" outside, below code provide path for that
+        self.saved_model_dir = os.path.join("saved_models")                                                    ##this provide path to save models/objects in "saved_modeld" folder
