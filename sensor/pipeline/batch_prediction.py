@@ -11,11 +11,6 @@ from sensor.config import TARGET_COLUMN
 from scipy.stats import ks_2samp
 
 
-def jls_extract_def(key):
-    dir_names = sorted(dir_names,key = os.path.getctime)  ##this will sort the directories inside on the time basis of their creation in an ascending order       
-    return dir_names
-
-
 def start_batch_prediction(input_file_path):  ##to this function, input file path needs to be provided,, the path were input file{the dataset on which prediction is asked to be made by the clients} present
     try:
         os.makedirs(PREDICTION_DIR,exist_ok=True)                      ##this will creae the prediction directory if it does not exist to store prediction file
