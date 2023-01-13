@@ -48,7 +48,7 @@ class DataValidation:
             self.validation_error[report_key_name]=list(drop_column_names)  ##updating the validation error dictionary we created with dropping operation that we have performed,, basically in the end thi swill be used to prepare a report w.r.t. the data validation done here in this file 
             df.drop(list(drop_column_names),axis=1,inplace=True)
 
-            #return None no columns left
+            #return None if no columns left
             if len(df.columns)==0:
                 return None
             return df
@@ -128,7 +128,7 @@ class DataValidation:
             logging.info(f"Drop null values colums from test df")
             test_df = self.drop_missing_values_columns(df=test_df,report_key_name="missing_values_within_test_dataset")
             
-            ##after dropping missing value column, now we change the datatye of all the colums to float except the target column, did it to avoid datatype mismatch error while testing the distribution of the features
+            ##after dropping missing value column, now we change the datatye of all the columns to float except the target column, did it to avoid datatype mismatch error while testing the distribution of the features
             exclude_columns = [TARGET_COLUMN]
             base_df = utils.convert_columns_float(df=base_df, exclude_columns=exclude_columns)
             train_df = utils.convert_columns_float(df=train_df, exclude_columns=exclude_columns)
