@@ -2,8 +2,14 @@ import pymongo
 import pandas as pd
 import json
 
-# Provide the mongodb localhost url to connect python to mongodb.
-client = pymongo.MongoClient("mongodb://localhost:27017/neurolabDB")
+from sensor.config import mongo_client   ##using this we are using the client we created to connect to the mongodb using my own URL, by mentioning that URL inside the ".env file", and which was called inside the config.py file after loading the environment variable using the ".init.py" file inside the sensor directory,,,,now don't have to separately form to client to establish connection of the vscode{ which is being used to use the python language} with the mongodb 
+
+"""
+##not needed now##
+#Provide the mongodb localhost url to connect python to mongodb.
+#client = pymongo.MongoClient("mongodb://localhost:27017/neurolabDB")
+##
+"""
 
 data_file_path="/config/workspace/aps_failure_training_set1.csv"
 database_name="aps"
@@ -21,5 +27,5 @@ if __name__=="__main__":
     print(json_record[0])
 
     #insert converted json record to mongo db
-    client[database_name][collection_name].insert_many(json_record)
+    mongo_client[database_name][collection_name].insert_many(json_record)
 

@@ -1,0 +1,79 @@
+##we will create a trigger in this file,,basically we defined the jobs and steps involvedin those jobs inside a workflow that will automate the CI/CD process
+
+name: workflow
+
+on:                     ##whenever we gonna push in main branch, tigger will happen
+  push:
+    branches:
+      - main
+
+permissions:            ##setting the permissions
+  id-token: write
+  contents: read
+
+
+jobs:                                                                                                     ##now we will write the jobs
+ build-and-push-ecr-image:                                                                                   #first is to built docker image{after cloning the whole code} and push the docker image to ECR,,,,,,{from there image will be availabel to be pulled into EC2 and then can be run, which will completes our deployment}
+  name: Continuous Delivery                                                                                    #giving it a name{can give any}  
+  runs-on: ubuntu-latest                                                                                       #which machine we want to use for it from GithubAction, we will mention here
+  steps:                                                                                                       #in it mentions the step that this job will follow  
+   - name: Checkout Code                                                                                          #first thing it will do is, it wil check out{i.e., bring our sourcecode into this ubuntu latest machine provided to us by the githubaction} the code, hence the name  of teh step "Checkout Code".
+     uses: actions/checkout@v3                                                                                      #it will use some actions{here we are using a predefined action from the github, whose work is to copy the code and launch it here in the machine that we have asked from the githubaction above{{can knwo its function if you serach it in the google}}
+   - name: Install Utilities                                                                                      #at this step we will install or update soem of the software we need
+     run: |                                                                                                         #'|' used in front of run command is to run multiple commands {i think so},,, like first one will update the ubuntu os, and second one to install the package "unzip"
+      sudo apt-get update
+      sudo apt-get install -y jq unzip
+   - name: Configure AWS credentials                                                                              #before we use ECR{it is a AWS Elastic Container Registry}, we need to configure AWS credentials into this ubuntu machine {basically to congigure AWS command line interface into this machine}
+     uses: aws-actions/configure-aws-credentials@v1                                                                  #to do it there is predefined action available, so we will use it
+     with:                                                                                                           #here we mentions the credentials that will be required, and we have created secret variables to hold those credentials, as they should be kept secret     
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+
+   - name: Login to Amazon ECR                                                                                    #at this step we will login to ECR             
+     id: login-ecr
+     uses: aws-actions/amazon-ecr-login@v1
+    
+   - name: Build, tag, and push image to Amazon ECR                                                               #to built, tag and push image to ECR           
+     id: build-image
+     env:                                                                                                            #for that first of all we should know whrere the ECR repository present, so below we will givb ethe location as environment variable
+      ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+      IMAGE_TAG: latest                                                                                              #this is to tag the image with the latest number {assigning the image with a latest number}      
+     run: |                                                                                                          #first command under it will built the docker image with a name and tag w.r.t. the image mentioned,,,,,,and ' .' means it will docker image from the sourcecode present inside the current working directory,,,,second line of cpde will push the image into ECR
+       # Build a docker container and
+       # push it to ECR so that it can
+       # be deployed to ECS.
+       docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+       docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+       echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" 
+ Continuous-Deployment:                                                                                        ##secod job is to deploy the image to EC2          
+  needs: build-and-push-ecr-image                                                                                #this here mentions that before this job, the job of building and pushing the image to ECR should have been completed, that means it tells the dependency of this job on the completion of the previous job        
+  runs-on: self-hosted                                                                                           #this 'self-hosted' will connect this to EC2 machine, where we going to download that docker image and run it 
+  steps:                                                                                                         #steps involved
+  - name: Checkout                                                                                                 #first step is to checout the code in EC2 machine
+    uses: actions/checkout@v3
+  
+  - name: Configure AWS credentials
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ secrets.AWS_REGION }}
+  - name: Install Utilities                                        #this step is to install all the required utilities in EC2 amchine
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y jq unzip
+  - name: Login to Amazon ECR                                      #this step is to login to ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v1
+    
+  - name: Pull docker image                                                                                        #this step will pull/download the docker image from ECR into EC2 machine                                                                                                                                                                                                                                                             
+    run: |
+      docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+  - name: Run Docker Image to serve users                          #this step is to run the docker image
+    run: |                                                         #in that first we will set the name of the image{till"latest"}, then we have defined the environment variables{thsi is the way to define environment varibales in linux} and last command will run the container{based on teh downloaded image} 
+      export IMAGE_NAME="${{secrets.AWS_ECR_LOGIN_URI}}"/"${{ secrets.ECR_REPOSITORY_NAME }}":latest AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} BUCKET_NAME=${{ secrets.BUCKET_NAME }} "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" && docker compose up -d
+  - name: Docker System Prune to Remove Old Images
+    run: |
+      docker system prune -f
