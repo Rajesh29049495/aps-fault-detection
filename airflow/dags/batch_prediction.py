@@ -8,7 +8,7 @@ from airflow.operators.python import PythonOperator
 
 
 with DAG(
-    'sensor_training',
+    'batch_prediction',
     default_args={'retries': 2},
     # [END default_args]
     description='Sensor Fault Detection',
@@ -21,21 +21,20 @@ with DAG(
     
     def download_files(**kwargs):
         bucket_name = os.getenv("BUCKET_NAME")
-        input_dir = "/app/input_files"
-        #creating directory
-        os.makedirs(input_dir,exist_ok=True)
-        os.system(f"aws s3 sync s3://{bucket_name}/input_files /app/input_files")
+        input_dir = "/app/input_files"          ##mention the path where we going to downoad the ".csv" file on which we will make prediction
+        os.makedirs(input_dir,exist_ok=True)    ##this will create the "input_files" folder inside "app" folder, if it does not exists
+        os.system(f"aws s3 sync s3://{bucket_name}/input_files /app/input_files")     ##this will download the ".csv" file inisde the "/app/input_files" location of th eEC2 machine from "s3://{bucket_name}/input_files" by syncing.,,,,,,,,note we created that"input_files" folder inside the s3 bucket "sensor-faultt-bucket" manually
 
     def batch_prediction(**kwargs):
         from sensor.pipeline.batch_prediction import start_batch_prediction
         input_dir = "/app/input_files"
-        for file_name in os.listdir(input_dir):
+        for file_name in os.listdir(input_dir):      ##this will list down files that are there inside the "input_files" folder,,,{although the way i gave path inside os.listdir() function as arguemnet is optional but if didn't have given then it would have listed the files inside the current working directry that is "app"}
             #make prediction
             start_batch_prediction(input_file_path=os.path.join(input_dir,file_name))
     
     def sync_prediction_dir_to_s3_bucket(**kwargs):
         bucket_name = os.getenv("BUCKET_NAME")
-        #upload prediction folder to predictionfiles folder in s3 bucket
+        #upload prediction folder{that got created in the working directory "/app" on running the batch_prediction pipeline} to predictionfiles folder{"prediction_files" that we have manually created} in s3 bucket
         os.system(f"aws s3 sync /app/prediction s3://{bucket_name}/prediction_files")
     
 
@@ -57,4 +56,4 @@ with DAG(
 
     )
 
-    download_input_files >> generate_prediction_files >> upload_prediction_files
+    download_input_files >> generate_prediction_files >> upload_prediction_files   ##the flow this batch prediction pipeline will follow

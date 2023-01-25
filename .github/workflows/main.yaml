@@ -68,11 +68,11 @@ jobs:                                                                           
     id: login-ecr
     uses: aws-actions/amazon-ecr-login@v1
     
-  - name: Pull docker image                                                                                        #this step will pull/download the docker image from ECR into EC2 machine                                                                                                                                                                                                                                                             
+  - name: Pull docker image                                                                                        #this step will pull/download the docker image from ECR so that we can run it into EC2 machine in the next step                                                                                                                                                                                                                                                             
     run: |
       docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
   - name: Run Docker Image to serve users                          #this step is to run the docker image
-    run: |                                                         #in that first we will set the name of the image{till"latest"}, then we have defined the environment variables{thsi is the way to define environment varibales in linux} and last command will run the container{based on teh downloaded image} 
+    run: |                                                         #in that first we will set the name of the image{ with AWS_ECR_LOGIN_URI value which we have saved in secrets in github/ECR_REPOSITORY_NAME value from secrets:latest{used to send the latest one} },,,, then we have defined the environment variables{this is the way to define environment varibales in linux}, i.e., the credentials to access s3 bucket, mongodb etc services to pull some files,or push some files etc using airflow,,,,,,and then the last command{"docker compose up -d"} will run the docker image by running the docker-compose.yaml file 
       export IMAGE_NAME="${{secrets.AWS_ECR_LOGIN_URI}}"/"${{ secrets.ECR_REPOSITORY_NAME }}":latest AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} BUCKET_NAME=${{ secrets.BUCKET_NAME }} "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" && docker compose up -d
   - name: Docker System Prune to Remove Old Images
     run: |
